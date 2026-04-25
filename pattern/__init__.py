@@ -1,4 +1,4 @@
-# pattern_prob
+# pattern
 from .domain import Model, match_probability, expected_match_count
 from .service import train
 from .adapters import FileWordSource, JsonModelStore
