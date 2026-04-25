@@ -3,7 +3,7 @@ Train a model from a word list and save it as JSON.
 
 Usage
 -----
-    python -m pattern.adapters.cli <words_file> <output.json> [--smoothing K]
+    python -m pattern.adapters.train_cli <words_file> <output.json> [--smoothing K]
 """
 from __future__ import annotations
 
