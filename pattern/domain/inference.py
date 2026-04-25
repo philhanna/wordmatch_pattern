@@ -42,20 +42,35 @@ def match_probability(model: Model, pattern: str) -> float:
     k = model.k
     pos_data = model.pos_freq.get(n, [])
 
+    bigram_data = model.bigram_freq.get(n, [])
     log_p_word = 0.0
+    prev_pos = -2
+    prev_ch = ''
 
     for i, ch in enumerate(pattern):
         if ch == '.':
+            prev_pos = -2
+            prev_ch = ''
             continue
 
-        freq_dict = pos_data[i] if i < len(pos_data) else {}
-        observed = freq_dict.get(ch, 0)
-        p_pos = (observed + k) / (W_n + 26 * k)
+        if i == prev_pos + 1:
+            # Adjacent constrained pair: use P(ch | prev_ch) from bigram table
+            bigram_dict = bigram_data[i - 1] if i - 1 < len(bigram_data) else {}
+            pair_count = bigram_dict.get(prev_ch + ch, 0)
+            unigram_dict = pos_data[i - 1] if i - 1 < len(pos_data) else {}
+            prev_count = unigram_dict.get(prev_ch, 0)
+            p = (pair_count + k) / (prev_count + 26 * k)
+        else:
+            freq_dict = pos_data[i] if i < len(pos_data) else {}
+            observed = freq_dict.get(ch, 0)
+            p = (observed + k) / (W_n + 26 * k)
 
-        if p_pos <= 0.0:
+        if p <= 0.0:
             return 0.0
 
-        log_p_word += math.log(p_pos)
+        log_p_word += math.log(p)
+        prev_pos = i
+        prev_ch = ch
 
     p_word = min(math.exp(log_p_word), 1.0)
 
@@ -75,11 +90,25 @@ def expected_match_count(model: Model, pattern: str) -> float:
         return 0.0
     k = model.k
     pos_data = model.pos_freq.get(n, [])
+    bigram_data = model.bigram_freq.get(n, [])
     log_p = 0.0
+    prev_pos = -2
+    prev_ch = ''
     for i, ch in enumerate(pattern):
         if ch == '.':
+            prev_pos = -2
+            prev_ch = ''
             continue
-        freq_dict = pos_data[i] if i < len(pos_data) else {}
-        observed = freq_dict.get(ch, 0)
-        log_p += math.log((observed + k) / (W_n + 26 * k))
+        if i == prev_pos + 1:
+            bigram_dict = bigram_data[i - 1] if i - 1 < len(bigram_data) else {}
+            pair_count = bigram_dict.get(prev_ch + ch, 0)
+            unigram_dict = pos_data[i - 1] if i - 1 < len(pos_data) else {}
+            prev_count = unigram_dict.get(prev_ch, 0)
+            log_p += math.log((pair_count + k) / (prev_count + 26 * k))
+        else:
+            freq_dict = pos_data[i] if i < len(pos_data) else {}
+            observed = freq_dict.get(ch, 0)
+            log_p += math.log((observed + k) / (W_n + 26 * k))
+        prev_pos = i
+        prev_ch = ch
     return W_n * min(math.exp(log_p), 1.0)

@@ -8,12 +8,15 @@ class Model:
         self,
         word_counts: dict[int, int],
         pos_freq: dict[int, list[dict[str, int]]],
+        bigram_freq: dict[int, list[dict[str, int]]],
         k: float,
     ) -> None:
         # word_counts[n]  = number of n-letter words in corpus
         self.word_counts = word_counts
         # pos_freq[n][i][c] = number of n-letter words with letter c at position i
         self.pos_freq = pos_freq
+        # bigram_freq[n][i]["AB"] = number of n-letter words with "A" at i, "B" at i+1
+        self.bigram_freq = bigram_freq
         # smoothing constant (add-k)
         self.k = k
 
@@ -21,6 +24,7 @@ class Model:
         return {
             "word_counts": {str(n): c for n, c in self.word_counts.items()},
             "pos_freq": {str(n): dlist for n, dlist in self.pos_freq.items()},
+            "bigram_freq": {str(n): dlist for n, dlist in self.bigram_freq.items()},
             "k": self.k,
         }
 
@@ -29,5 +33,6 @@ class Model:
         return cls(
             word_counts={int(n): c for n, c in data["word_counts"].items()},
             pos_freq={int(n): dlist for n, dlist in data["pos_freq"].items()},
+            bigram_freq={int(n): dlist for n, dlist in data.get("bigram_freq", {}).items()},
             k=data["k"],
         )
