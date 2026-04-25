@@ -1,4 +1,4 @@
 # pattern.application
-from .train import train
+from pattern.application.train import train
 
 __all__ = ["train"]

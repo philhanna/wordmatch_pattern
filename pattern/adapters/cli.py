@@ -10,9 +10,9 @@ from __future__ import annotations
 import argparse
 import time
 
-from .file_word_source import FileWordSource
-from .json_model_store import JsonModelStore
-from ..application import train
+from pattern.adapters.file_word_source import FileWordSource
+from pattern.adapters.json_model_store import JsonModelStore
+from pattern.application import train
 
 
 def main() -> None:

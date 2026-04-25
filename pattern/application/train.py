@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ..domain import Model, build_model
-from ..ports import WordSource
+from pattern.domain import Model, build_model
+from pattern.ports import WordSource
 
 
 def train(source: WordSource, smoothing_k: float = 0.5) -> Model:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Iterable
 
-from .model import Model
+from pattern.domain.model import Model
 
 
 def build_model(words: Iterable[str], smoothing_k: float = 0.5) -> Model:

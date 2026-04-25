@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 
-from .model import Model
+from pattern.domain.model import Model
 
 _VALID_PATTERN = re.compile(r'^[A-Za-z.]+$')
 
