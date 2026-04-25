@@ -3,9 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from pattern.adapters.json_model_store import JsonModelStore
-from pattern.domain import match_probability
+from pattern.domain.model import Model
 
 
-def query(model_path: str | Path, pattern: str) -> float:
-    model = JsonModelStore(model_path).load()
-    return match_probability(model, pattern)
+def load_model(model_path: str | Path) -> Model:
+    return JsonModelStore(model_path).load()
