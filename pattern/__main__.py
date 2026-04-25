@@ -1,9 +1,9 @@
 import sys
 import time
 
-from . import match_probability, expected_match_count
-from .adapters import FileWordSource
-from .application import train
+from .domain.inference import match_probability, expected_match_count
+from .adapters.file_word_source import FileWordSource
+from .application.train import train
 
 word_file = sys.argv[1] if len(sys.argv) > 1 else "words.txt"
 

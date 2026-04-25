@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable
 
-from ..ports import WordSource
+from ..ports.word_source import WordSource
 
 
 class FileWordSource(WordSource):

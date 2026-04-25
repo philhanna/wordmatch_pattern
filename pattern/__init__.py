@@ -1,3 +1,3 @@
 # pattern
-from .domain import match_probability, expected_match_count
+from .domain.inference import match_probability, expected_match_count
 

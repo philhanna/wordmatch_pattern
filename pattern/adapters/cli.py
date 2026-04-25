@@ -12,7 +12,7 @@ import time
 
 from .file_word_source import FileWordSource
 from .json_model_store import JsonModelStore
-from ..application import train
+from ..application.train import train
 
 
 def main() -> None:
