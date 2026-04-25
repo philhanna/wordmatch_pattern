@@ -3,7 +3,7 @@ import time
 
 from . import match_probability, expected_match_count
 from .adapters import FileWordSource
-from .service import train
+from .application import train
 
 word_file = sys.argv[1] if len(sys.argv) > 1 else "words.txt"
 
