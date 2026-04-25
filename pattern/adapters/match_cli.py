@@ -18,7 +18,7 @@ def main() -> None:
         description="Query a trained pattern-probability model."
     )
     parser.add_argument("pattern", help="Pattern string (letters and '.' for wildcards)")
-    parser.add_argument("model", help="Path to trained model JSON file")
+    parser.add_argument("model", nargs="?", default="model.json", help="Path to trained model JSON file (default: model.json)")
     args = parser.parse_args()
 
     model = JsonModelStore(args.model).load()
