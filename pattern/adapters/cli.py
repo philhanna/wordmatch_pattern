@@ -3,15 +3,16 @@ Train a model from a word list and save it as JSON.
 
 Usage
 -----
-    python -m pattern_prob.train_cli <words_file> <output.json> [--smoothing K]
+    python -m pattern.adapters.cli <words_file> <output.json> [--smoothing K]
 """
 from __future__ import annotations
 
 import argparse
 import time
 
-from .adapters import FileWordSource, JsonModelStore
-from .service import train
+from .file_word_source import FileWordSource
+from .json_model_store import JsonModelStore
+from ..application import train
 
 
 def main() -> None:
