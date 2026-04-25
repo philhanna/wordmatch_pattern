@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..domain.model import Model
-from ..ports.model_store import ModelStore
+from ..domain import Model
+from ..ports import ModelStore
 
 
 class JsonModelStore(ModelStore):
