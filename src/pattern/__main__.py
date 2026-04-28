@@ -1,3 +1,17 @@
+"""Quick smoke-test entry point: ``python -m pattern [words_file]``.
+
+Trains a model on *words_file* (default: ``words.txt``) and then prints a
+table of match probabilities and expected counts for a fixed set of
+representative patterns.  Useful for a rapid sanity-check after changing the
+corpus or tweaking model parameters.
+
+Usage
+-----
+::
+
+    python -m pattern
+    python -m pattern /usr/share/dict/words
+"""
 import sys
 import time
 
@@ -14,6 +28,8 @@ elapsed = time.perf_counter() - t0
 total_words = sum(model.word_counts.values())
 print(f"done in {elapsed:.2f}s  ({total_words:,} words loaded)\n")
 
+# A mix of patterns that exercises common cases: exact words, wildcards,
+# rare first letters, impossible combinations, and various lengths.
 test_patterns = [
     "CAT",
     "C.T",

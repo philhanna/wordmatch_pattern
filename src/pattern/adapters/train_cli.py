@@ -1,9 +1,32 @@
-"""
-Train a model from a word list and save it as JSON.
+"""Command-line interface for training a pattern-probability model.
+
+Reads a word list from a text file, builds a
+:class:`~pattern.domain.model.Model`, and saves it as a JSON file that can
+later be queried with the ``match`` command.
 
 Usage
 -----
-    python -m pattern.adapters.train_cli <words_file> <output.json> [--smoothing K]
+::
+
+    train <words_file> <output.json> [--smoothing K]
+
+Arguments
+---------
+words_file
+    Path to a plain-text file containing one word per line.
+output
+    Destination path for the trained model (JSON format).
+--smoothing K
+    Laplace smoothing constant *k* (default: 0.5).  Increase to pull
+    probability estimates toward the uniform distribution when the corpus is
+    small or sparse.
+
+Examples
+--------
+::
+
+    train /usr/share/dict/words model.json
+    train words.txt model.json --smoothing 1.0
 """
 from __future__ import annotations
 
@@ -16,6 +39,7 @@ from pattern.application import train
 
 
 def main() -> None:
+    """Parse arguments, train the model, and save it to disk."""
     parser = argparse.ArgumentParser(
         description="Train a pattern-probability model and save it as JSON."
     )
