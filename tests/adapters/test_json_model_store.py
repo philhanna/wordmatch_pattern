@@ -30,3 +30,13 @@ def test_accepts_string_path(tmp_path):
     JsonModelStore(str(path)).save(model)
     loaded = JsonModelStore(str(path)).load()
     assert loaded.word_counts == model.word_counts
+
+
+def test_save_uses_compact_json(tmp_path):
+    model = build_model(["CAT"])
+    path = tmp_path / "model.json"
+    JsonModelStore(path).save(model)
+    assert path.read_text(encoding="utf-8") == (
+        '{"word_counts":{"3":1},"pos_freq":{"3":[{"C":1},{"A":1},{"T":1}]},'
+        '"bigram_freq":{"3":[{"CA":1},{"AT":1}]},"k":0.5}'
+    )

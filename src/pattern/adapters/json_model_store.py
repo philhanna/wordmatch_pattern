@@ -31,6 +31,8 @@ class JsonModelStore(ModelStore):
 
         The file is written atomically within the constraints of
         :func:`open`; any existing file at :attr:`path` is overwritten.
+        Output is written in a compact JSON form to minimize file size while
+        remaining human-readable.
 
         Parameters
         ----------
@@ -38,7 +40,7 @@ class JsonModelStore(ModelStore):
             The trained model to persist.
         """
         with open(self.path, "w", encoding="utf-8") as fh:
-            json.dump(model.to_dict(), fh)
+            json.dump(model.to_dict(), fh, separators=(",", ":"))
 
     def load(self) -> Model:
         """Read the JSON file at :attr:`path` and return a reconstructed model.
