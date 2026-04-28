@@ -1,4 +1,5 @@
 *.swp
+.codex
 *.pyc
 *.json
 __pycache__/
