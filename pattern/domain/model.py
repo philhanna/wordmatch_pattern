@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 class Model:
     """Trained model.  All the data needed to answer probability queries.
 
@@ -57,43 +54,3 @@ class Model:
         self.bigram_freq = bigram_freq
         # smoothing constant (add-k)
         self.k = k
-
-    def to_dict(self) -> dict:
-        """Serialise the model to a JSON-compatible dictionary.
-
-        All integer keys are stringified so the result can be round-tripped
-        through :func:`json.dump` / :func:`json.load` without data loss.
-
-        Returns
-        -------
-        dict
-            A plain-Python dictionary suitable for ``json.dump``.
-        """
-        return {
-            "word_counts": {str(n): c for n, c in self.word_counts.items()},
-            "pos_freq": {str(n): dlist for n, dlist in self.pos_freq.items()},
-            "bigram_freq": {str(n): dlist for n, dlist in self.bigram_freq.items()},
-            "k": self.k,
-        }
-
-    @classmethod
-    def from_dict(cls, data: dict) -> Model:
-        """Deserialise a model from the dictionary produced by :meth:`to_dict`.
-
-        Parameters
-        ----------
-        data:
-            Dictionary as returned by :meth:`to_dict` or loaded from JSON.
-
-        Returns
-        -------
-        Model
-            A fully reconstructed :class:`Model` instance.
-        """
-        return cls(
-            word_counts={int(n): c for n, c in data["word_counts"].items()},
-            pos_freq={int(n): dlist for n, dlist in data["pos_freq"].items()},
-            # bigram_freq was added after the initial release; tolerate missing key
-            bigram_freq={int(n): dlist for n, dlist in data.get("bigram_freq", {}).items()},
-            k=data["k"],
-        )

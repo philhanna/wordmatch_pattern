@@ -69,7 +69,7 @@ helps when the corpus is small or sparse.
 ## Architecture
 
 The project follows a **hexagonal (ports & adapters)** design. Dependencies
-point inward: the domain knows nothing about files or JSON.
+point inward: the domain knows nothing about files or serialization formats.
 
 ```
 ╔════════════════════════════════════════════════════════════════════╗
@@ -96,8 +96,8 @@ point inward: the domain knows nothing about files or JSON.
 ╔════════════│═══════════════════════════════════════│════════════════╗
 ║  Driven Side (Outbound Adapters)                   │                ║
 ║  ┌──────────┴───────────┐          ┌───────────────┴─────────────┐  ║
-║  │   FileWordSource     │          │      JsonModelStore         │  ║
-║  │ (reads words file)   │          │ (saves/loads model as JSON) │  ║
+║  │   FileWordSource     │          │     JoblibModelStore        │  ║
+║  │ (reads words file)   │          │ (saves/loads model: joblib) │  ║
 ║  └──────────────────────┘          └─────────────────────────────┘  ║
 ╚═════════════════════════════════════════════════════════════════════╝
                                     │
@@ -111,7 +111,7 @@ point inward: the domain knows nothing about files or JSON.
 ```
 
 **Data flow:** CLI → `train(WordSource)` → `build_model` → `Model` →
-`JsonModelStore.save` → *(later)* `JsonModelStore.load` → `match_probability`.
+`JoblibModelStore.save` → *(later)* `JoblibModelStore.load` → `match_probability`.
 
 **Dependency rule:** the domain (`pattern.domain`) imports nothing outside
 itself. The application layer depends only on ports; adapters implement the
@@ -122,17 +122,17 @@ ports; the CLI wires concrete adapters to the application use cases.
 ```
 pattern/
 ├── domain/           # Pure logic — no I/O
-│   ├── model.py        Model (frequency tables, to_dict/from_dict)
+│   ├── model.py        Model (frequency tables + smoothing constant)
 │   ├── training.py     build_model()
 │   └── inference.py    match_probability(), expected_match_count()
 ├── ports/            # Abstract interfaces
 │   ├── word_source.py  WordSource
 │   └── model_store.py  ModelStore
 ├── adapters/         # Concrete I/O implementations
-│   ├── file_word_source.py   FileWordSource
-│   ├── json_model_store.py   JsonModelStore
-│   ├── train_cli.py          `train` command
-│   └── match_cli.py          `match` command
+│   ├── file_word_source.py     FileWordSource
+│   ├── joblib_model_store.py   JoblibModelStore
+│   ├── train_cli.py            `train` command
+│   └── match_cli.py            `match` command
 ├── application/      # Use-case orchestration
 │   ├── train.py        train()
 │   └── query.py        load_model()
@@ -143,7 +143,9 @@ pattern/
 
 ## Installation
 
-Requires **Python ≥ 3.12**.
+Requires **Python ≥ 3.12**.  The only runtime dependency is
+[joblib](https://joblib.readthedocs.io/), used for model persistence; it is
+installed automatically.
 
 ```bash
 # From the project root
@@ -162,7 +164,7 @@ Installing registers two console scripts, `train` and `match` (see
 ### 1. Train a model
 
 ```bash
-train <words_file> <output.json> [--smoothing K]
+train <words_file> <output.joblib> [--smoothing K]
 ```
 
 `words_file` is a plain-text file with one word per line. Words are
@@ -170,8 +172,8 @@ upper-cased and stripped; entries that are empty or contain non-alphabetic
 characters are silently skipped.
 
 ```bash
-train words.txt model.json
-train /usr/share/dict/words model.json --smoothing 1.0
+train words.txt model.joblib
+train /usr/share/dict/words model.joblib --smoothing 1.0
 ```
 
 This repository ships a `words.txt` corpus (~345k entries) to get started.
@@ -179,18 +181,18 @@ This repository ships a `words.txt` corpus (~345k entries) to get started.
 ### 2. Query a pattern
 
 ```bash
-match <pattern> [<model.json>]
+match <pattern> [<model.joblib>]
 ```
 
 `pattern` uses letters and `.` wildcards (case-insensitive). The model path
-defaults to `model.json`.
+defaults to `model.joblib`.
 
 ```bash
-$ match C.T model.json
+$ match C.T model.joblib
 Pattern        C.T
-P(match)       0.999998
-E[matches]     42.17
-Words of len   8,124
+P(match)       0.999999
+E[matches]     14.37
+Words of len   4,635
 ```
 
 ### 3. Quick smoke test
@@ -210,8 +212,8 @@ The repo also includes two thin shell scripts, [`train`](train) and
 you have not installed the package:
 
 ```bash
-./train words.txt model.json
-./match TH... model.json
+./train words.txt model.joblib
+./match TH... model.joblib
 ```
 
 ---
@@ -224,15 +226,15 @@ The full public API is re-exported from the top-level package:
 from pattern import (
     train, load_model,
     match_probability, expected_match_count,
-    Model, FileWordSource, JsonModelStore,
+    Model, FileWordSource, JoblibModelStore,
 )
 
 # Train from any WordSource (here, a file)
 model = train(FileWordSource("words.txt"), smoothing_k=0.5)
 
 # Persist / reload
-JsonModelStore("model.json").save(model)
-model = load_model("model.json")        # or JsonModelStore("model.json").load()
+JoblibModelStore("model.joblib").save(model)
+model = load_model("model.joblib")      # or JoblibModelStore("model.joblib").load()
 
 # Query
 match_probability(model, "C.T")         # -> float in [0.0, 1.0]
@@ -259,21 +261,16 @@ other backend without touching the rest of the code.
 
 ## Model file format
 
-`JsonModelStore` writes a compact (`separators=(",", ":")`) JSON document.
-Integer keys are stringified so the structure round-trips cleanly through
-`json`:
+`JoblibModelStore` persists the trained `Model` object directly with
+[`joblib.dump`](https://joblib.readthedocs.io/) and reloads it with
+`joblib.load`. joblib serialises the whole object — including its native
+integer-keyed frequency dictionaries — so no manual key conversion is needed,
+and the on-disk form is more compact and faster to read/write than a text JSON
+representation.
 
-```json
-{
-  "word_counts": {"3": 8124, "4": 12950},
-  "pos_freq":    {"3": [{"C": 412, ...}, ...]},
-  "bigram_freq": {"3": [{"CA": 88, ...}, ...]},
-  "k": 0.5
-}
-```
-
-`Model.from_dict` tolerates a missing `bigram_freq` key, so models produced by
-earlier versions still load.
+The resulting file is a binary joblib artifact (conventionally named
+`*.joblib`); it is not human-readable. Because it is a pickle-based format,
+only load model files you trust.
 
 ---
 
@@ -300,5 +297,3 @@ pytest
 | [`words.txt`](words.txt)          | Sample word-list corpus.                 |
 | [`train`](train) / [`match`](match) | Shell wrappers around the CLI modules. |
 | [`pyproject.toml`](pyproject.toml) | Build config, scripts, pytest settings. |
-</content>
-</invoke>

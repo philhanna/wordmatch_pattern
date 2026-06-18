@@ -19,7 +19,7 @@ The code is organised in three layers following a ports-and-adapters
   :class:`~pattern.ports.ModelStore`) that the domain depends on.
 * **adapters** — concrete I/O implementations
   (:class:`~pattern.adapters.FileWordSource`,
-  :class:`~pattern.adapters.JsonModelStore`) that satisfy the port interfaces.
+  :class:`~pattern.adapters.JoblibModelStore`) that satisfy the port interfaces.
 * **application** — thin use-case functions (:func:`~pattern.application.train`,
   :func:`~pattern.application.load_model`) that wire domain and adapters
   together.
@@ -29,7 +29,7 @@ Public API
 """
 from pattern.domain import Model, match_probability, expected_match_count
 from pattern.application import train
-from pattern.adapters import FileWordSource, JsonModelStore
+from pattern.adapters import FileWordSource, JoblibModelStore
 from pattern.ports import WordSource, ModelStore
 
 __all__ = [
@@ -38,7 +38,7 @@ __all__ = [
     "match_probability",
     "expected_match_count",
     "FileWordSource",
-    "JsonModelStore",
+    "JoblibModelStore",
     "WordSource",
     "ModelStore",
 ]

@@ -7,7 +7,7 @@ Usage
 -----
 ::
 
-    match <pattern> [<model.json>]
+    match <pattern> [<model.joblib>]
 
 Arguments
 ---------
@@ -15,7 +15,8 @@ pattern
     Pattern string composed of letters and ``'.'`` wildcards, e.g. ``C.T``
     or ``TH...``.  Case-insensitive.
 model
-    Path to a JSON model file produced by ``train`` (default: ``model.json``).
+    Path to a joblib model file produced by ``train``
+    (default: ``model.joblib``).
 
 Output
 ------
@@ -35,7 +36,7 @@ from __future__ import annotations
 
 import argparse
 
-from pattern.adapters.json_model_store import JsonModelStore
+from pattern.adapters.joblib_model_store import JoblibModelStore
 from pattern.domain import expected_match_count, match_probability
 
 
@@ -48,12 +49,12 @@ def main() -> None:
     parser.add_argument(
         "model",
         nargs="?",
-        default="model.json",
-        help="Path to trained model JSON file (default: model.json)",
+        default="model.joblib",
+        help="Path to trained model joblib file (default: model.joblib)",
     )
     args = parser.parse_args()
 
-    model = JsonModelStore(args.model).load()
+    model = JoblibModelStore(args.model).load()
 
     pat = args.pattern.upper()
     p = match_probability(model, pat)

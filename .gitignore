@@ -2,6 +2,7 @@
 .codex
 *.pyc
 *.json
+*.joblib
 __pycache__/
 .vscode/
 .venv/

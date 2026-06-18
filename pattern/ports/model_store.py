@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class ModelStore(ABC):
     """Port: persists and retrieves a trained :class:`~pattern.domain.model.Model`.
 
-    Concrete adapters (e.g. :class:`~pattern.adapters.json_model_store.JsonModelStore`)
+    Concrete adapters (e.g. :class:`~pattern.adapters.joblib_model_store.JoblibModelStore`)
     implement the two abstract methods to bind the port to a specific storage
     backend.
     """

@@ -5,11 +5,11 @@ Each adapter wires the abstract port contract to a specific I/O mechanism:
 
 :class:`FileWordSource`
     Reads words from a plain-text file, one per line.
-:class:`JsonModelStore`
-    Persists and loads a trained :class:`~pattern.domain.model.Model` as a
-    JSON file.
+:class:`JoblibModelStore`
+    Persists and loads a trained :class:`~pattern.domain.model.Model` with
+    joblib.
 """
 from pattern.adapters.file_word_source import FileWordSource
-from pattern.adapters.json_model_store import JsonModelStore
+from pattern.adapters.joblib_model_store import JoblibModelStore
 
-__all__ = ["FileWordSource", "JsonModelStore"]
+__all__ = ["FileWordSource", "JoblibModelStore"]
