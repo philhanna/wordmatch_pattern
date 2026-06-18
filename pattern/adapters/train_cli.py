@@ -44,7 +44,7 @@ def main() -> None:
         description="Train a pattern-probability model and save it with joblib."
     )
     parser.add_argument("words_file", help="Path to word list (one word per line)")
-    parser.add_argument("output", help="Path for the output joblib model file")
+    parser.add_argument("output", nargs="?", default="model.joblib", help="Path for the output joblib model file")
     parser.add_argument(
         "--smoothing",
         type=float,
