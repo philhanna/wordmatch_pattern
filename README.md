@@ -1,4 +1,4 @@
-# pattern
+# wordmatch_pattern
 
 Estimate the probability that **at least one English word** matches a given
 letter pattern such as `C.T`, `TH...`, or `E..E..E` — where `.` is a wildcard
